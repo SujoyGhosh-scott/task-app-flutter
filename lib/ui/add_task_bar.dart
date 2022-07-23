@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:todo_app/controller/task_controller.dart';
+import 'package:todo_app/models/task.dart';
 //import 'package:todo_app/ui/home_page.dart';
 import 'package:todo_app/ui/theme.dart';
 import 'package:todo_app/ui/widgets/button.dart';
@@ -15,6 +17,9 @@ class AddTaskPage extends StatefulWidget {
 }
 
 class _AddTaskPageState extends State<AddTaskPage> {
+  final TaskController _taskController = Get.put(TaskController());
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _noteController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   String _startTime = DateFormat("hh:mm a").format(DateTime.now()).toString();
   String _endTime = "9:30 PM";
@@ -42,8 +47,16 @@ class _AddTaskPageState extends State<AddTaskPage> {
         padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
         child: SingleChildScrollView(
             child: Column(children: [
-          MyInputField(title: "Title", hint: "Enter your title"),
-          MyInputField(title: "Note", hint: "Enter your note"),
+          MyInputField(
+            title: "Title",
+            hint: "Enter your title",
+            controller: _titleController,
+          ),
+          MyInputField(
+            title: "Note",
+            hint: "Enter your note",
+            controller: _noteController,
+          ),
           MyInputField(
             title: "Date",
             hint: DateFormat.yMd().format(_selectedDate),
@@ -143,12 +156,42 @@ class _AddTaskPageState extends State<AddTaskPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _colorPallete(),
-              MyButton(label: "Create task", onTap: () {})
+              MyButton(label: "Create task", onTap: () => _validateDate())
             ],
           )
         ])),
       ),
     );
+  }
+
+  _validateDate() {
+    if (_titleController.text.isNotEmpty && _noteController.text.isNotEmpty) {
+      _addTaskToDB();
+      Get.back();
+    } else if (_titleController.text.isEmpty || _noteController.text.isEmpty) {
+      Get.snackbar("Required", "All fields are required!",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.white,
+          icon: const Icon(Icons.warning_amber_rounded),
+          colorText: Colors.red);
+    }
+  }
+
+  _addTaskToDB() async {
+    int value = await _taskController.addTask(
+        task: Task(
+            note: _noteController.text,
+            title: _titleController.text,
+            date: DateFormat.yMd().format(_selectedDate),
+            startTime: _startTime,
+            endTime: _endTime,
+            remind: _selectedRemind,
+            repeat: _selectedRepeat,
+            color: _selectedColor,
+            isCompleted: 0));
+    if (kDebugMode) {
+      print("id is: $value");
+    }
   }
 
   _colorPallete() {
