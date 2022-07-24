@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
                 body: Get.isDarkMode
                     ? "Activated Light Theme"
                     : "Activated dark theme");
-            notifyHelper.scheduleNotification();
+            //notifyHelper.scheduleNotification();
           },
           child: Icon(
             Get.isDarkMode ? Icons.wb_sunny_rounded : Icons.nightlight_round,
@@ -114,7 +114,9 @@ class _HomePageState extends State<HomePage> {
               selectionColor: primaryClr,
               selectedTextColor: Colors.white,
               onDateChange: (date) {
-                _selectedDate = date;
+                setState(() {
+                  _selectedDate = date;
+                });
               },
             )),
         const SizedBox(
@@ -133,39 +135,59 @@ class _HomePageState extends State<HomePage> {
         return ListView.builder(
             itemCount: _taskController.taskList.length,
             itemBuilder: (_, index) {
+              Task task = _taskController.taskList[index];
               if (kDebugMode) {
                 print(_taskController.taskList.length);
+                print(task.toJson());
               }
-              return AnimationConfiguration.staggeredList(
-                  position: index,
-                  child: SlideAnimation(
-                    child: FadeInAnimation(
-                        child: Row(
-                      children: [
-                        GestureDetector(
-                          onTap: (() {
-                            _showBottomSheet(
-                                context, _taskController.taskList[index]);
-                          }),
-                          child: TaskTile(_taskController.taskList[index]),
-                        )
-                      ],
-                    )),
-                  ));
-              // return GestureDetector(
-              //   onTap: () {
-              //     _taskController
-              //         .delete(_taskController.taskList[index].id.toString());
-              //     _taskController.getTask();
-              //   },
-              //   child: Container(
-              //     width: 100,
-              //     height: 50,
-              //     color: Colors.green,
-              //     margin: const EdgeInsets.only(bottom: 10),
-              //     child: Text(_taskController.taskList[index].title.toString()),
-              //   ),
-              // );
+
+              if (task.repeat == 'Daily') {
+                DateTime date =
+                    DateFormat.jm().parse(task.startTime.toString());
+                var myTime = DateFormat("HH:mm").format(date);
+                if (kDebugMode) {
+                  print(myTime);
+                }
+                notifyHelper.scheduleNotification(
+                    int.parse(myTime.toString().split(":")[0]),
+                    int.parse(myTime.toString().split(":")[1]),
+                    task);
+
+                return AnimationConfiguration.staggeredList(
+                    position: index,
+                    child: SlideAnimation(
+                      child: FadeInAnimation(
+                          child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: (() {
+                              _showBottomSheet(context, task);
+                            }),
+                            child: TaskTile(task),
+                          )
+                        ],
+                      )),
+                    ));
+              }
+              if (task.date == DateFormat.yMd().format(_selectedDate)) {
+                return AnimationConfiguration.staggeredList(
+                    position: index,
+                    child: SlideAnimation(
+                      child: FadeInAnimation(
+                          child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: (() {
+                              _showBottomSheet(context, task);
+                            }),
+                            child: TaskTile(task),
+                          )
+                        ],
+                      )),
+                    ));
+              } else {
+                return Container();
+              }
             });
       }),
     );
@@ -193,6 +215,7 @@ class _HomePageState extends State<HomePage> {
             : _bottomSheetButton(
                 label: "Task Completed",
                 onTap: () {
+                  //_taskController.markTaskCompleted(task.id.toString());
                   Get.back();
                 },
                 clr: primaryClr,
@@ -203,6 +226,7 @@ class _HomePageState extends State<HomePage> {
         _bottomSheetButton(
             label: "Delete Task",
             onTap: () {
+              //_taskController.delete(id);
               Get.back();
             },
             clr: Colors.redAccent,
@@ -216,6 +240,7 @@ class _HomePageState extends State<HomePage> {
               Get.back();
             },
             clr: Colors.black26,
+            isClose: true,
             context: context),
         const SizedBox(
           height: 20,
@@ -237,7 +262,7 @@ class _HomePageState extends State<HomePage> {
         height: 55,
         width: MediaQuery.of(context).size.width * 0.9,
         decoration: BoxDecoration(
-          color: isClose == true ? Colors.red : clr,
+          color: isClose == true ? Colors.black26 : clr,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
