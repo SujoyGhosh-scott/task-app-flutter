@@ -4,6 +4,16 @@ import 'package:todo_app/models/task.dart';
 class TaskController extends GetxController {
   var taskList = <Task>[
     Task(
+        id: 0,
+        title: "task 0",
+        note: "note 0",
+        isCompleted: 0,
+        endTime: "10:59 PM",
+        startTime: "08:17 PM",
+        date: "7/24/2022",
+        color: 0,
+        repeat: 'Daily'),
+    Task(
         id: 1,
         title: "task 1",
         note: "note 1",

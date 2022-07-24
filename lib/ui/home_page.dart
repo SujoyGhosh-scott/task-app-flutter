@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
       body: Column(children: [
         ///top bar with add task button
         Container(
-          margin: const EdgeInsets.only(left: 15, right: 15, top: 10),
+          margin: const EdgeInsets.only(left: 20, right: 20, top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage> {
 
         ///List of dates
         Container(
-            margin: const EdgeInsets.only(top: 10, left: 10),
+            margin: const EdgeInsets.only(top: 10, left: 20),
             child: DatePicker(
               DateTime.now(),
               height: 100,
