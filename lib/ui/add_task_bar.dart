@@ -153,7 +153,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               _colorPallete(),
               MyButton(label: "Create task", onTap: () => _validateDate())
